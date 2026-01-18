@@ -4,17 +4,6 @@ set -e
 
 . /usr/lib/hoolocktest/test_functions.sh
 
-is_enabled="Y"
-
-if [ -f "/sys/module/macsmc_power/parameters/enable_t8015" ]; then
-    is_enabled="$(cat /sys/module/macsmc_power/parameters/enable_t8015)";
-fi
-
-if [ "$is_enabled" != "Y" ]; then
-    printf "macsmc_power.enable_t8015 not set.\nSkipping test for experimental battery support\n";
-    exit 0;
-fi
-
 prop_exists()
 {
     if [ -f "/sys/class/power_supply/macsmc-battery/${1}" ]; then
