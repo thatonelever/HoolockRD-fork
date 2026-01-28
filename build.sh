@@ -77,7 +77,11 @@ chmod 755 initramfs/init
 chmod 644 initramfs/init_functions.sh
 
 cd initramfs
-fakeroot find . | cpio -ov --format=newc | gzip -c9 > ../../initramfs.gz
+fakeroot find . | cpio -ov --format=newc > ../initramfs.cpio
+gzip -c9 ../initramfs.cpio > ../../initramfs.gz
+xz --check=crc32 -zce6T0 ../initramfs.cpio > ../../initramfs.xz
+
+rm -f ../../initramfs.cpio
 
 cd ..
 #rm -rf work
