@@ -48,7 +48,7 @@ printf -- "---- INSTALL BASE PACKAGES ----\n"
 cat << ! | chroot rootfs $RUN_SH
 apk update
 apk upgrade
-apk add unudhcpd busybox-extras evtest dtc-dev musl-dev util-linux gcc
+apk add unudhcpd busybox-extras evtest dtc-dev musl-dev util-linux gcc lm-sensors
 !
 
 umount -l rootfs/dev
@@ -64,10 +64,10 @@ ${TARGET_STRIP} ../hoolocktest/hoolocktest
 mkdir initramfs
 mkdir -p initramfs/{sbin,bin,dev,lib,proc,sys,usr/{bin,sbin,lib/hoolocktest},run,tmp}
 cp rootfs/lib/ld-musl-aarch64.so.1 initramfs/lib
-cp rootfs/usr/lib/libfdt.so.1 initramfs/usr/lib
+cp rootfs/usr/lib/{libfdt.so.1,libsensors.so.5} initramfs/usr/lib
 ln -s ld-musl-aarch64.so.1 initramfs/lib/libc.musl-aarch64.so.1
 cp rootfs/bin/{busybox,busybox-extras} initramfs/bin
-cp rootfs/usr/bin/{evtest,unudhcpd,taskset} initramfs/bin
+cp rootfs/usr/bin/{evtest,unudhcpd,taskset,sensors} initramfs/bin
 install -m755 ../copybins/perf initramfs/bin
 cp ../scripts/{init,init_functions.sh} initramfs
 cp ../hoolocktest/scripts/* initramfs/usr/lib/hoolocktest
