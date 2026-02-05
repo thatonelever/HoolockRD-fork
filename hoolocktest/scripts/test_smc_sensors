@@ -1,0 +1,45 @@
+#!/bin/sh
+
+set -e
+
+. /usr/lib/hoolocktest/test_functions.sh
+
+# only t8015's smc supported reporting temperatures
+HWMON_PATH="/sys/devices/platform/soc/236000100.smc/macsmc-hwmon/hwmon/hwmon2";
+
+# hopefully the temperature is between -40°C and +120°C
+TEMP_MIN="-40000"
+TEMP_MAX="120000"
+
+require_dir_exists "$HWMON_PATH"
+
+check_temp_sensor() {
+    require_file_exists "$HWMON_PATH"/temp"$1"_label
+    require_file_exists "$HWMON_PATH"/temp"$1"_input
+
+    act_lbl="$(cat "$HWMON_PATH"/temp"$1"_label)"
+    temp="$(cat "$HWMON_PATH"/temp"$1"_input)"
+
+    if [ "$act_lbl" != "$2" ]; then
+        printf "Error: Expected label $2 got $act_lbl"
+        exit 1;
+    fi
+
+    if [ "$(expr "$temp" "<" "$TEMP_MIN")" = "1" ]; then
+        printf "Error: $act_lbl Temperature too low: %s °C\n" $(expr "$temp" '/' '100' )
+        exit 1;
+    fi
+
+    if [ "$(expr "$temp" ">" "$TEMP_MAX")" = "1" ]; then
+        printf "Error: $act_lbl Temperature too high: %s °C\n" $(expr "$temp" '/' '100' )
+        exit 1;
+    fi
+}
+
+check_temp_sensor "1" "Battery Temp"
+check_temp_sensor "2" "Battery Flex Temp"
+check_temp_sensor "3" "Forehead Temp"
+check_temp_sensor "4" "Rear Camera Temp"
+check_temp_sensor "5" "Cellular Radio Temp"
+check_temp_sensor "6" "AP SoC Temp"
+check_temp_sensor "7" "Charger Temp"

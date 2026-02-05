@@ -96,6 +96,11 @@ int main(void)
         if (ret)
             bail("battery test failed\n");
         printf("battery test OK\n");
+
+        ret = runCommand((const char*[]){HLT_PATH("test_smc_sensors"), NULL});
+        if (ret)
+            bail("HWMON test failed\n");
+        printf("HWMON test OK\n");
     }
 
     printf("HoolockLinux Test -- SUCCESS\n");
