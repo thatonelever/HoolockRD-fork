@@ -62,8 +62,8 @@ make -C ../hoolocktest
 ${TARGET_STRIP} ../hoolocktest/hoolocktest
 
 mkdir initramfs initramfs-binpack
-mkdir -p initramfs/{bin,lib}
-mkdir -p initramfs-binpack/{usr/lib/hoolocktest,bin,dev,sbin,proc,sys,run,tmp,usr/{bin,sbin,lib}}
+mkdir -p initramfs/{sbin,bin,usr/{bin,sbin},lib}
+mkdir -p initramfs-binpack/{usr/lib/hoolocktest,bin,dev,proc,sys,run,tmp,usr/lib}
 cp rootfs/lib/ld-musl-aarch64.so.1 initramfs/lib
 cp rootfs/usr/lib/{libfdt.so.1,libsensors.so.5} initramfs-binpack/usr/lib
 cp "rootfs/usr/lib/$(readlink rootfs/usr/lib/libgpiod.so.3)" initramfs-binpack/usr/lib/libgpiod.so.3
