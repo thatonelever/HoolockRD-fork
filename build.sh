@@ -48,7 +48,7 @@ printf -- "---- INSTALL BASE PACKAGES ----\n"
 cat << ! | chroot rootfs $RUN_SH
 apk update
 apk upgrade
-apk add unudhcpd busybox-extras evtest dtc-dev musl-dev util-linux gcc lm-sensors
+apk add unudhcpd busybox-extras evtest dtc-dev musl-dev util-linux gcc lm-sensors libgpiod
 !
 
 umount -l rootfs/dev
@@ -61,20 +61,27 @@ ${TARGET_STRIP} ../external/coremark/coremark.exe
 make -C ../hoolocktest
 ${TARGET_STRIP} ../hoolocktest/hoolocktest
 
-mkdir initramfs
-mkdir -p initramfs/{sbin,bin,dev,lib,proc,sys,usr/{bin,sbin,lib/hoolocktest},run,tmp}
+mkdir initramfs initramfs-binpack
+mkdir -p initramfs/{bin,lib}
+mkdir -p initramfs-binpack/{usr/lib/hoolocktest,bin,dev,sbin,proc,sys,run,tmp,usr/{bin,sbin,lib}}
 cp rootfs/lib/ld-musl-aarch64.so.1 initramfs/lib
-cp rootfs/usr/lib/{libfdt.so.1,libsensors.so.5} initramfs/usr/lib
+cp rootfs/usr/lib/{libfdt.so.1,libsensors.so.5} initramfs-binpack/usr/lib
+cp "rootfs/usr/lib/$(readlink rootfs/usr/lib/libgpiod.so.3)" initramfs-binpack/usr/lib/libgpiod.so.3
 ln -s ld-musl-aarch64.so.1 initramfs/lib/libc.musl-aarch64.so.1
-cp rootfs/bin/{busybox,busybox-extras} initramfs/bin
-cp rootfs/usr/bin/{evtest,unudhcpd,taskset,sensors} initramfs/bin
-install -m755 ../copybins/perf initramfs/bin
+cp rootfs/bin/busybox initramfs/bin
+cp rootfs/bin/busybox-extras initramfs-binpack/bin
+cp rootfs/usr/bin/{evtest,unudhcpd,taskset,sensors,gpioset,gpioget,gpiodetect,gpiomon,gpionotify} initramfs-binpack/bin
+install -m755 ../copybins/perf initramfs-binpack/bin
 cp ../scripts/{init,init_functions.sh} initramfs
-cp ../hoolocktest/scripts/* initramfs/usr/lib/hoolocktest
-install -m755 ../external/coremark/coremark.exe initramfs/bin/coremark
-install -m755 ../hoolocktest/hoolocktest initramfs/bin
+cp ../hoolocktest/scripts/* initramfs-binpack/usr/lib/hoolocktest
+install -m755 ../external/coremark/coremark.exe initramfs-binpack/bin/coremark
+install -m755 ../hoolocktest/hoolocktest initramfs-binpack/bin
 chmod 755 initramfs/init
 chmod 644 initramfs/init_functions.sh
+
+cd initramfs-binpack
+fakeroot find . | cpio -ov --format=newc | lzma -zce6T1 > ../initramfs/extract.cpio.lzma
+cd ..
 
 cd initramfs
 fakeroot find . | cpio -ov --format=newc > ../initramfs.cpio

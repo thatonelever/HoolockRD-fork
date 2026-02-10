@@ -11,6 +11,10 @@ LOG_PREFIX="[HL-rd]"
 
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin
 /bin/busybox --install -s
+
+cat /extract.cpio.lzma | lzma -dc | cpio -id
+rm -f /extract.cpio.lzma
+
 /bin/busybox-extras --install -s
 
 if [ "$hl_rd" = "" ]; then
