@@ -34,3 +34,22 @@ jobs:
       with:
         path: initramfs.gz
         name: initramfs.gz
+
+    - name: Setup Alpine ARM64 sysroot
+      run: |
+        sudo apt-get install -y qemu-user-static
+        wget https://dl-cdn.alpinelinux.org/alpine/v3.19/releases/aarch64/alpine-minirootfs-3.19.0-aarch64.tar.gz
+        mkdir alpine-sysroot
+        sudo tar xf alpine-minirootfs-3.19.0-aarch64.tar.gz -C alpine-sysroot/
+        sudo cp /usr/bin/qemu-aarch64-static alpine-sysroot/usr/bin/
+
+    - name: Install VNC + WM packages
+      run: |
+        sudo chroot alpine-sysroot/ /bin/sh -c "
+          apk add --no-cache \
+            tigervnc \
+            openbox \
+            xterm \
+            font-misc-misc \
+            libx11 libxext libxfixes libxi libxrandr
+    "
